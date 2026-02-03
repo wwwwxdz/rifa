@@ -49,6 +49,11 @@ export const RiggedRaffleModal = ({
       typeof targetRound === "string" ? parseInt(targetRound) : targetRound;
 
     if (selectedOptionId && !isNaN(roundNumber) && roundNumber > 0) {
+      const player = options.find((o) => o.id === selectedOptionId);
+      console.log(
+        `%c ✍️ CONFIGURACIÓN: Programando a "${player?.label}" para ganar en la Ronda ${roundNumber}`,
+        "color: #FFEB3B; font-weight: bold; background: #333; padding: 2px; border-radius: 4px;",
+      );
       onSaveRig(roundNumber, selectedOptionId);
     }
   };
@@ -128,7 +133,10 @@ export const RiggedRaffleModal = ({
                       </span>
                       <button
                         className="delete-rig-btn"
-                        onClick={() => onClearRig(parseInt(round))}
+                        onClick={() => {
+                          console.log(`%c 🗑️ TRUCO ELIMINADO para la Ronda ${round}`, 'color: #f44336; font-weight: bold;');
+                          onClearRig(parseInt(round));
+                        }}
                       >
                         ✕
                       </button>

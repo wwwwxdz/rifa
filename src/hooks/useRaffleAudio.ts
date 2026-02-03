@@ -3,20 +3,20 @@ import { useSettings } from "../context";
 
 // URLs de Música de Fondo (loop)
 const MUSIC_URLS: Record<string, string> = {
-  drum_roll_1: "https://cdn.pixabay.com/audio/2022/03/15/audio_c8c8a73467.mp3", // Fun upbeat
-  drum_roll_2: "https://cdn.pixabay.com/audio/2022/01/18/audio_d0a13f69d2.mp3", // Drum roll
-  suspense_1: "https://cdn.pixabay.com/audio/2021/09/06/audio_165213d2q6.mp3", // Suspense dark
-  suspense_2: "https://cdn.pixabay.com/audio/2022/10/25/audio_6c82b81517.mp3", // Tension building
-  carnival: "https://cdn.pixabay.com/audio/2022/08/02/audio_884fe92c21.mp3", // Circus carnival
+  drum_roll_1: "https://upload.wikimedia.org/wikipedia/commons/1/12/Drums_short_roll.ogg",
+  drum_roll_2: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Snare_Drum_Roll.ogg",
+  suspense_1: "https://upload.wikimedia.org/wikipedia/commons/0/04/Suspense_Sting.ogg",
+  suspense_2: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Tension_building_sting.ogg",
+  carnival: "https://upload.wikimedia.org/wikipedia/commons/8/85/Circus_Music_Short.ogg",
 };
 
 // URLs de Sonidos de Decisión (one-shot)
 const DECISION_SOUND_URLS: Record<string, string> = {
-  sfx_cymbal_1: "https://cdn.pixabay.com/audio/2022/03/10/audio_c9c7d1b2c5.mp3", // Cymbal hit
-  sfx_cymbal_2: "https://cdn.pixabay.com/audio/2022/03/15/audio_8cb749fe9c.mp3", // Cymbal crash
-  sfx_bell: "https://cdn.pixabay.com/audio/2022/03/24/audio_6062d90736.mp3", // Bell ding
-  sfx_tada: "https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1e6c2.mp3", // Tada fanfare
-  sfx_applause: "https://cdn.pixabay.com/audio/2022/03/12/audio_b4f07e69ed.mp3", // Applause crowd
+  sfx_cymbal_1: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Cymbal_crash.ogg",
+  sfx_cymbal_2: "https://upload.wikimedia.org/wikipedia/commons/b/b3/Cymbal_clash.ogg",
+  sfx_bell: "https://upload.wikimedia.org/wikipedia/commons/4/44/Boxing_bell.ogg",
+  sfx_tada: "https://upload.wikimedia.org/wikipedia/commons/d/db/Tada-sound.ogg",
+  sfx_applause: "https://upload.wikimedia.org/wikipedia/commons/e/e6/Applause-3.ogg",
 };
 
 export const useRaffleAudio = () => {
@@ -43,7 +43,7 @@ export const useRaffleAudio = () => {
         audioContextRef.current &&
         audioContextRef.current.state !== "closed"
       ) {
-        audioContextRef.current.close().catch(() => {});
+        audioContextRef.current.close().catch(() => { });
       }
     };
   }, []);
@@ -115,7 +115,7 @@ export const useRaffleAudio = () => {
     // Crear nuevo audio para cada reproducción (permite superponer)
     const audio = new Audio(url);
     audio.volume = (settings.volume ?? 50) / 100;
-    audio.play().catch(() => {});
+    audio.play().catch(() => { });
   }, [settings.decisionSound, settings.volume]);
 
   // Generar Win - Usa sonido de decisión configurado o fallback sintético
@@ -206,7 +206,7 @@ export const useRaffleAudio = () => {
   const playApplause = useCallback(() => {
     const audio = new Audio(DECISION_SOUND_URLS.sfx_applause);
     audio.volume = (settings.volume ?? 50) / 100;
-    audio.play().catch(() => {});
+    audio.play().catch(() => { });
   }, [settings.volume]);
 
   return { playTick, playWin, playEliminated, tryStartMusic, playApplause };

@@ -294,82 +294,76 @@ export const RaffleWheel = () => {
 
   // Función para calcular y anunciar ganador
   const calculateAndAnnounceWinner = useCallback(
-    (finalRotation: number) => {
+    (finalRotation: number, forcedWinnerId?: string) => {
       const currentOptions = optionsRef.current;
-      // Usar settingsRef para asegurar la configuración más reciente
       const currentSettings = settingsRef.current;
 
       if (currentOptions.length === 0) return;
 
-      const numSegments = currentOptions.length;
-      const segmentAngle = 360 / numSegments;
+      let selectedOption: WheelOption | undefined;
+      let winnerIndex = -1;
 
-      // Normalizar rotación a [0, 360)
-      let normalizedRotation = finalRotation % 360;
-      if (normalizedRotation < 0) normalizedRotation += 360;
+      if (forcedWinnerId) {
+        // Usar el ganador decidido al inicio del giro
+        winnerIndex = currentOptions.findIndex((o) => o.id === forcedWinnerId);
+        selectedOption = currentOptions[winnerIndex];
+      }
 
-      const adjustedAngle = (360 - normalizedRotation + 360) % 360;
-      const winnerIndex =
-        Math.floor(adjustedAngle / segmentAngle) % numSegments;
-
-      const selectedOption = currentOptions[winnerIndex];
+      // Fallback si no hay ID o no se encontró
+      if (!selectedOption) {
+        const numSegments = currentOptions.length;
+        const segmentAngle = 360 / numSegments;
+        let normalizedRotation = finalRotation % 360;
+        if (normalizedRotation < 0) normalizedRotation += 360;
+        const adjustedAngle = (360 - normalizedRotation + 360) % 360;
+        winnerIndex = Math.floor(adjustedAngle / segmentAngle) % numSegments;
+        selectedOption = currentOptions[winnerIndex];
+      }
 
       setIsSpinning(false);
       setIsStopping(false);
-      // Detener ticks
       if (tickTimeoutRef.current) clearTimeout(tickTimeoutRef.current);
 
-      if (currentSettings.removeOnceChosen) {
-        if (currentSettings.winningCondition === "after_n_times") {
-          const nextCount = currentRoundCount + 1;
-          setCurrentRoundCount(nextCount);
+      if (currentSettings.winningCondition === "after_n_times") {
+        const nextCount = currentRoundCount + 1;
+        setCurrentRoundCount(nextCount >= currentSettings.winningN ? 0 : nextCount);
 
-          if (nextCount >= currentSettings.winningN) {
-            // GANADOR
-            setAnnouncement({
-              text: selectedOption.label,
-              type: "winner",
-              subtext: `Ganador del sorteo #${nextCount}`,
-            });
-            playWin();
-            playApplause();
-            setShowConfetti(true);
-            setTimeout(() => setShowConfetti(false), 5000);
-            setCurrentRoundCount(0); // Resetear ciclo
-          } else {
-            // ELIMINADO
-            setAnnouncement({
-              text: selectedOption.label,
-              type: "eliminated",
-              subtext: `Sorteo ${nextCount}/${currentSettings.winningN}: Eliminado`,
-            });
-            playEliminated();
-          }
-
-          // Eliminar siempre al seleccionado (ya sea eliminado o ganador)
-          if (currentOptions.length > 0) {
-            setOptions((prev) => prev.filter((_, idx) => idx !== winnerIndex));
-            // NOTA IMPORTANTE: Al eliminar una opción automáticamente aquí,
-            // no estamos limpiando los trucos asociados.
-            // Si el truco era para una ronda futura con esta opción, fallará.
-            // Pero como esta opción "ya salió" (ganó o fue eliminada), tiene sentido que no vuelva a salir.
-          }
-        } else {
-          // Ganar inmediatamente
+        if (nextCount >= currentSettings.winningN) {
+          // GANADOR FINAL - Limpiar trucos
           setAnnouncement({
             text: selectedOption.label,
             type: "winner",
+            subtext: `Ganador del sorteo #${nextCount}`,
           });
           playWin();
           playApplause();
           setShowConfetti(true);
           setTimeout(() => setShowConfetti(false), 5000);
-          if (currentOptions.length > 0) {
-            setOptions((prev) => prev.filter((_, idx) => idx !== winnerIndex));
-          }
+
+          // Limpiar el local storage de trucos al finalizar
+          setRiggedOutcomes({});
+          localStorage.removeItem(RIGGED_STORAGE_KEY);
+        } else {
+          // ELIMINADO
+          setAnnouncement({
+            text: selectedOption.label,
+            type: "eliminated",
+            subtext: `Sorteo ${nextCount}/${currentSettings.winningN}: Eliminado`,
+          });
+          playEliminated();
+        }
+
+        const shouldRemove =
+          currentSettings.winningCondition === "after_n_times" ||
+          currentSettings.removeOnceChosen;
+
+        if (shouldRemove) {
+          const idToRemove = selectedOption.id;
+          setOptions((prev) => prev.filter((o) => o.id !== idToRemove));
         }
       } else {
-        // Modo normal sin eliminación
+        // Modo Normal
+        setCurrentRoundCount((prev) => prev + 1);
         setAnnouncement({
           text: selectedOption.label,
           type: "winner",
@@ -378,6 +372,15 @@ export const RaffleWheel = () => {
         playApplause();
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 5000);
+
+        // Limpiar trucos al ganar
+        setRiggedOutcomes({});
+        localStorage.removeItem(RIGGED_STORAGE_KEY);
+
+        if (currentSettings.removeOnceChosen) {
+          const idToRemove = selectedOption.id;
+          setOptions((prev) => prev.filter((o) => o.id !== idToRemove));
+        }
       }
     },
     [currentRoundCount, playWin, playEliminated, playApplause],
@@ -431,7 +434,7 @@ export const RaffleWheel = () => {
       return;
     }
 
-    if (options.length < 2) return;
+    if (options.length < 1) return;
 
     // Intentar iniciar la música de fondo (requiere interacción del usuario)
     tryStartMusic();
@@ -447,95 +450,98 @@ export const RaffleWheel = () => {
 
     // Configuración de giro
     const spinDuration = settings.spinDuration * 1000;
-
-    // Generar rotación aleatoria por defecto
     const minSpins = 10;
     const maxSpins = 15;
     const spins = minSpins + Math.random() * (maxSpins - minSpins);
-    let extraDegrees = Math.random() * 360;
+    let extraDegrees = 0;
 
-    // VERIFICAR SI HAY UN RESULTADO TRUCADO PARA ESTA RONDA
+    // 4. Determinar Ganador (Decisión antes del giro)
+    let winnerIndex = -1;
     const nextRoundNumber = currentRoundCount + 1;
-    // Forzar cast a any para permitir acceso flexible por número o string
+
+    console.log(`%c 🔍 COMPROBANDO RONDA ${nextRoundNumber} `, 'background: #222; color: #bada55; font-size: 11px; font-weight: bold; padding: 2px;');
+
+    // A. ¿Hay un resultado trucado para ESTA ronda?
     const riggedWinnerId =
       (riggedOutcomes as any)[nextRoundNumber] ||
       (riggedOutcomes as any)[nextRoundNumber.toString()];
 
-    console.log(
-      `🎲 Iniciando giro. Ronda actual: ${currentRoundCount}, Próxima: ${nextRoundNumber}`,
-    );
-    console.log(
-      `🕵️ Buscando truco para ronda ${nextRoundNumber}... Resultado: ${riggedWinnerId ? "ENCONTRADO: " + riggedWinnerId : "Ninguno"}`,
-    );
-
     if (riggedWinnerId) {
-      const winnerIndex = options.findIndex((o) => o.id === riggedWinnerId);
+      winnerIndex = options.findIndex((o) => o.id === riggedWinnerId);
       if (winnerIndex !== -1) {
-        // Calcular el ángulo necesario para este ganador
-        const numSegments = options.length;
-        const segmentAngle = 360 / numSegments;
-
-        // IMPORTANTE: El SVG dibuja los segmentos con un offset de -90 grados
-        // (ver línea: const startAngle = i * segmentAngle - 90)
-        // Por tanto, el centro visual del segmento W está en:
-        // visualCenterAngle = (W + 0.5) * segmentAngle - 90
-        //
-        // Sin embargo, el calculateAndAnnounceWinner usa:
-        // adjustedAngle = (360 - normalizedRotation) % 360
-        // winnerIndex = Math.floor(adjustedAngle / segmentAngle)
-        //
-        // Cuando rotation = 0, adjustedAngle = 360 (o 0), winnerIndex = 0.
-        // Esto significa que el ganador índice 0 está arriba cuando rotation = 0.
-        // Esto coincide con el offset de -90 del SVG (el segmento 0 empieza en -90° = arriba-izq).
-        //
-        // Para que winnerIndex = W:
-        // adjustedAngle debe estar en [W * segmentAngle, (W+1) * segmentAngle)
-        // targetAdjustedAngle (centro) = (W + 0.5) * segmentAngle
-        //
-        // De adjustedAngle = (360 - normalizedRotation) % 360:
-        // normalizedRotation = (360 - targetAdjustedAngle) % 360
-
-        const targetAdjustedAngle = (winnerIndex + 0.5) * segmentAngle;
-        const targetRotationMod360 = (360 - targetAdjustedAngle + 360) % 360;
-        const currentRotationMod360 = ((rotation % 360) + 360) % 360;
-
-        // Delta necesario desde la posición actual
-        let neededDelta = targetRotationMod360 - currentRotationMod360;
-        while (neededDelta < 0) neededDelta += 360;
-
-        extraDegrees = neededDelta;
-
-        // Jitter pequeño para no ser tan obvio (máximo ±40% del segmento)
-        // Reducido a ±35% para asegurar que no caiga en el borde por error de redondeo
-        const jitter = (Math.random() - 0.5) * (segmentAngle * 0.35);
-        extraDegrees += jitter;
-
-        console.log(
-          `🔒 Ronda ${nextRoundNumber} trucada para: ${options[winnerIndex].label} (idx: ${winnerIndex})`,
-        );
+        console.log(`%c 🎯 TRUCO DETECTADO: El jugador "${options[winnerIndex].label}" DEBE salir en esta ronda.`, 'color: #00ff00; font-weight: bold;');
       } else {
-        console.warn(
-          `⚠️ Truco encontrado pero la opción ID ${riggedWinnerId} ya no existe.`,
-        );
+        console.warn(`%c ⚠️ TRUCO IGNORADO: El ID ${riggedWinnerId} ya no está en la rueda.`, 'color: #ff9900;');
       }
     }
 
-    const totalRotation = spins * 360 + extraDegrees;
+    // B. Si no hay truco o no era válido, elegir Ganador Aleatorio
+    if (winnerIndex === -1) {
+      console.log("🎲 No hay truco para esta ronda. Buscando ganador aleatorio seguro...");
 
+      // PROTEGER a quienes tienen trucos futuros
+      const reservedEntries = Object.entries(riggedOutcomes)
+        .filter(([r]) => parseInt(r) > nextRoundNumber);
+
+      const reservedIds = new Set();
+      const validReservedEntries: [string, string][] = [];
+
+      reservedEntries.forEach(([r, id]) => {
+        const p = options.find(o => o.id === id);
+        if (p) {
+          reservedIds.add(id);
+          validReservedEntries.push([r, id]);
+        }
+      });
+
+      if (validReservedEntries.length > 0) {
+        console.log(`%c 🛡️ Protegiendo a ${validReservedEntries.length} jugador(es) reservados para el futuro:`, 'color: #3f51b5; font-weight: bold;');
+        validReservedEntries.forEach(([r, id]) => {
+          const p = options.find(o => o.id === id);
+          console.log(`   - "${p?.label}" (Reservado para Ronda ${r})`);
+        });
+      }
+
+      // Opciones que no están reservadas para el futuro
+      const safeOptions = options.filter(o => !reservedIds.has(o.id));
+
+      if (safeOptions.length > 0) {
+        const chosen = safeOptions[Math.floor(Math.random() * safeOptions.length)];
+        winnerIndex = options.findIndex(o => o.id === chosen.id);
+      } else {
+        console.log("⚠️ Todos están reservados para el futuro. Eligiendo cualquiera.");
+        winnerIndex = Math.floor(Math.random() * options.length);
+      }
+    }
+
+    const winnerId = options[winnerIndex].id;
+    console.log(`%c 🏁 RESULTADO FINAL: Ganará "${options[winnerIndex].label}"`, 'color: #2196F3; font-weight: bold;');
+
+    // 5. Calcular ángulo final basado en el winnerIndex decidido
+    const numSegments = options.length;
+    const segmentAngle = 360 / numSegments;
+    const targetAdjustedAngle = (winnerIndex + 0.5) * segmentAngle;
+    const targetRotationMod360 = (360 - targetAdjustedAngle + 360) % 360;
+    const currentRotationMod360 = ((rotation % 360) + 360) % 360;
+
+    let neededDelta = targetRotationMod360 - currentRotationMod360;
+    while (neededDelta < 0) neededDelta += 360;
+
+    // Jitter (±35% del segmento)
+    const jitter = (Math.random() - 0.5) * (segmentAngle * 0.35);
+    extraDegrees = neededDelta + jitter;
+
+    const totalRotation = Math.floor(spins) * 360 + extraDegrees;
     const newRotation = rotation + totalRotation;
 
     // Actualizar rotación para iniciar animación CSS
     setRotation(newRotation);
 
     // Iniciar loop de sonidos de tick
-    // Ajuste de velocidad inicial basado en settings
     let tickDelay = Math.max(20, 150 - settings.effectFrequency);
     const tickLoop = () => {
       playTick();
-      // Desaceleración progresiva para igualar la física visual
       tickDelay *= 1.05;
-
-      // Solo continuar si el delay es razonable (no muy lento)
       if (tickDelay < 800) {
         tickTimeoutRef.current = window.setTimeout(tickLoop, tickDelay);
       }
@@ -543,10 +549,8 @@ export const RaffleWheel = () => {
     tickLoop();
 
     // PROGRAMAR EL FIN DEL GIRO
-    // Usamos setTimeout como la fuente de verdad.
-    // Añadimos un pequeño buffer (50ms) para asegurar que la animación CSS haya terminado visualmente.
     spinTimeoutRef.current = window.setTimeout(() => {
-      calculateAndAnnounceWinner(newRotation);
+      calculateAndAnnounceWinner(newRotation, winnerId);
     }, spinDuration + 50);
   }, [
     isSpinning,
@@ -574,6 +578,31 @@ export const RaffleWheel = () => {
   // Crear los segmentos del SVG
   const createWheelSegments = () => {
     if (options.length === 0) return null;
+
+    // Caso especial: Solo queda 1 opción. El arco de 360° no se dibuja bien en SVG.
+    if (options.length === 1) {
+      const opt = options[0];
+      return (
+        <g key={opt.id}>
+          <circle cx="150" cy="150" r="148" fill={opt.color} stroke="#2c3e50" strokeWidth="2" />
+          <text
+            x="150"
+            y="100"
+            fill="white"
+            fontSize="18"
+            fontWeight="bold"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            style={{
+              textShadow: "1px 1px 4px rgba(0,0,0,0.6)",
+              pointerEvents: "none",
+            }}
+          >
+            {opt.label}
+          </text>
+        </g>
+      );
+    }
 
     const segments = [];
     const segmentAngle = 360 / options.length;
@@ -774,7 +803,7 @@ export const RaffleWheel = () => {
               className={`start-btn ${isStopping ? "stopping" : ""} ${isSpinning && !settings.tapToStop ? "spinning-locked" : ""}`}
               onClick={handleSpin}
               disabled={
-                options.length < 2 ||
+                options.length < 1 ||
                 isStopping ||
                 (isSpinning && !settings.tapToStop)
               }

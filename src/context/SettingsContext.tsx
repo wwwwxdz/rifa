@@ -41,7 +41,7 @@ const DEFAULT_SETTINGS: Settings = {
   decisionSound: "sfx_cymbal_1",
   effect: "change_1_before",
   effectFrequency: 0,
-  removeOnceChosen: false,
+  removeOnceChosen: true,
   tapToStop: false,
   winningCondition: "immediate",
   winningN: 2,
