@@ -1,0 +1,644 @@
+@use '../../styles/variables' as *;
+
+// ============================================
+// OPTIONS PAGE
+// ============================================
+
+.options-modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.options-page {
+  @include flex-column;
+  min-height: 100%;
+  background: $bg-tertiary;
+  max-width: $max-width-mobile;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+}
+
+// ─────────────────────────────────────────────
+// HEADER
+// ─────────────────────────────────────────────
+
+.options-header {
+  @include flex-between;
+  padding: 10px;
+  min-height: $header-height;
+  flex-shrink: 0;
+
+  h1 {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $text-light;
+    margin: 0;
+    text-align: center;
+  }
+}
+
+.close-btn {
+  @include circle-button($btn-size-md);
+  background: transparent;
+  color: $accent-blue;
+
+  svg {
+    width: $icon-size-lg;
+    height: $icon-size-lg;
+  }
+
+  &:hover {
+    background: rgba($accent-blue, 0.1);
+  }
+}
+
+.header-spacer {
+  width: $btn-size-md;
+}
+
+// ─────────────────────────────────────────────
+// CONTENT
+// ─────────────────────────────────────────────
+
+
+
+.options-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+
+
+.section-label {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin: 0;
+  padding: $spacing-sm $spacing-md $spacing-xs;
+}
+
+// ─────────────────────────────────────────────
+// OPTION ITEMS
+// ─────────────────────────────────────────────
+
+.option-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: transparent;
+  padding: $spacing-sm $spacing-md;
+  border: none;
+  text-align: left;
+  cursor: default;
+  transition: background $transition-base;
+  gap: $spacing-sm;
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      background: rgba($text-light, 0.03);
+    }
+
+    &:active {
+      background: rgba($text-light, 0.05);
+    }
+  }
+}
+
+.option-icon {
+  width: $icon-size-lg;
+  height: $icon-size-lg;
+  @include flex-center;
+  flex-shrink: 0;
+  color: $text-light;
+  opacity: 0.9;
+
+  svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.option-label {
+  flex: 1;
+  font-size: $font-size-base;
+  font-weight: $font-weight-regular;
+  color: $text-light;
+}
+
+.option-value {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin-right: $spacing-xxs;
+}
+
+.chevron-icon {
+  width: 18px;
+  height: 18px;
+  color: $text-muted;
+  opacity: 0.6;
+}
+
+// ─────────────────────────────────────────────
+// TOGGLE SWITCH
+// ─────────────────────────────────────────────
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: $toggle-width;
+  height: $toggle-height;
+  flex-shrink: 0;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .toggle-slider {
+      background: $accent-blue;
+
+      &::before {
+        transform: translateX(22px);
+      }
+    }
+  }
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba($text-light, 0.15);
+  border-radius: $radius-full;
+  transition: all $transition-normal;
+
+  &::before {
+    content: "";
+    position: absolute;
+    height: $toggle-thumb-size;
+    width: $toggle-thumb-size;
+    left: 3px;
+    bottom: 3px;
+    background: $text-light;
+    border-radius: $radius-full;
+    transition: all $transition-normal;
+    @include shadow-sm;
+  }
+}
+
+// ─────────────────────────────────────────────
+// SELECT MODAL
+// ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+// SELECT & SLIDER FULL SCREEN MODALS
+// ─────────────────────────────────────────────
+
+.sub-modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 110; // Higher than OptionsModal (100)
+  background: rgba(0, 0, 0, 0.5); // Slightly darker overlay
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.sub-modal-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  max-width: $max-width-mobile;
+  background: $bg-tertiary;
+  margin: 0 auto;
+  position: relative;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+}
+
+.sub-modal-header {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  padding: 10px;
+  background: rgba($bg-secondary, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba($border-light, 0.1);
+  z-index: 10;
+
+  h3 {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $text-light;
+    margin: 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .back-btn {
+    background: transparent;
+    border: none;
+    color: $text-light;
+    cursor: pointer;
+    padding: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    &:hover {
+      color: $accent-blue;
+    }
+  }
+}
+
+.sub-modal-content {
+  flex: 1;
+  overflow-y: hidden;
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.sub-modal-footer {
+  flex-shrink: 0;
+  padding: $spacing-md;
+  background: $bg-secondary;
+  border-top: 1px solid rgba($border-light, 0.1);
+  display: flex;
+  justify-content: center;
+
+  .action-btn {
+    width: 100%;
+    padding: $spacing-sm;
+    background: $accent-blue;
+    color: $text-light;
+    border: none;
+    border-radius: $radius-lg;
+    font-size: $font-size-base;
+    font-weight: $font-weight-bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba($accent-blue, 0.3);
+    transition: all $transition-base;
+
+    &:hover {
+      background: $accent-blue-dark;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Specific Styles for Select Items
+.select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: $spacing-md;
+  background: rgba($bg-primary, 0.5);
+  border: 1px solid transparent;
+  border-radius: $radius-lg;
+  color: $text-light;
+  font-size: $font-size-base;
+  text-align: left;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  svg {
+    width: 24px;
+    height: 24px;
+    color: $accent-blue;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all $transition-base;
+  }
+
+  &:hover {
+    background: rgba($bg-primary, 0.8);
+  }
+
+  &.selected {
+    background: rgba($accent-blue, 0.1);
+    border-color: rgba($accent-blue, 0.5);
+    color: $accent-blue-light;
+
+    svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+.select-options {
+  @include flex-column;
+  gap: $spacing-xxs;
+  margin-bottom: $spacing-md;
+}
+
+.select-option {
+  @include flex-between;
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  background: rgba($bg-primary, 0.5);
+  border: none;
+  border-radius: $radius-lg;
+  color: $text-light;
+  font-size: $font-size-base;
+  text-align: left;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  svg {
+    width: $icon-size-md;
+    height: $icon-size-md;
+    color: $accent-blue;
+  }
+
+  &:hover {
+    background: rgba($bg-primary, 0.8);
+  }
+
+  &.selected {
+    background: rgba($accent-blue, 0.15);
+    color: $accent-blue;
+  }
+}
+
+.close-modal-btn {
+  width: 100%;
+  padding: $spacing-sm;
+  background: $accent-blue;
+  border: none;
+  border-radius: $radius-lg;
+  color: $text-light;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background: $accent-blue-light;
+  }
+}
+
+// ─────────────────────────────────────────────
+// SLIDER
+// ─────────────────────────────────────────────
+
+.slider-container {
+  @include flex-column;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+  padding: $spacing-xs 0;
+}
+
+.slider-input {
+  width: 100%;
+  height: 6px;
+  background: rgba($text-light, 0.15);
+  border-radius: 3px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    background: $accent-blue;
+    border-radius: $radius-full;
+    cursor: pointer;
+    @include shadow-sm;
+    transition: transform $transition-base;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  &::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    background: $accent-blue;
+    border: none;
+    border-radius: $radius-full;
+    cursor: pointer;
+    box-shadow: 0 2px 6px $shadow-dark;
+  }
+}
+
+.slider-value {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $accent-blue;
+}
+
+// ─────────────────────────────────────────────
+// CONFIRM MODAL
+// ─────────────────────────────────────────────
+
+.confirm-modal {
+  .confirm-actions {
+    display: flex;
+    gap: $spacing-sm;
+
+    button {
+      flex: 1;
+      padding: $spacing-sm;
+      border-radius: $radius-lg;
+      font-size: $font-size-base;
+      font-weight: $font-weight-semibold;
+      cursor: pointer;
+      transition: all $transition-base;
+    }
+
+    .cancel-btn {
+      background: transparent;
+      border: 1px solid $border-light-hover;
+      color: $text-light;
+
+      &:hover {
+        background: $overlay-light;
+      }
+    }
+
+    .confirm-btn {
+      background: $accent-coral;
+      border: none;
+      color: $text-light;
+
+      &:hover {
+        background: $accent-coral-light;
+      }
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// WINNING CONFIG MODAL
+// ─────────────────────────────────────────────
+
+.option-item-group {
+    @include flex-column;
+    width: 100%;
+}
+
+.winning-config-modal {
+    .winning-config-options {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+        margin-bottom: $spacing-lg;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: flex-start;
+        gap: $spacing-md;
+        background: rgba($bg-primary, 0.5);
+        padding: $spacing-md;
+        border-radius: $radius-lg;
+        cursor: pointer;
+        transition: all $transition-base;
+
+        &:hover {
+             background: rgba($bg-primary, 0.8);
+        }
+
+        input[type="radio"] {
+             margin-top: 4px;
+             accent-color: $accent-blue;
+             transform: scale(1.2);
+        }
+
+        .radio-content {
+             display: flex;
+             flex-direction: column;
+             gap: 4px;
+        }
+
+        .radio-title {
+             color: $text-light;
+             font-weight: $font-weight-medium;
+             font-size: $font-size-base;
+        }
+
+        .radio-desc {
+             color: $text-muted;
+             font-size: $font-size-sm;
+             line-height: $line-height-base;
+        }
+    }
+
+    .n-times-input-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-xl;
+        padding: $spacing-md;
+        background: rgba($accent-blue, 0.1);
+        border-radius: $radius-lg;
+        border: 1px dashed rgba($accent-blue, 0.3);
+
+        label {
+            color: $text-light;
+            font-size: $font-size-sm;
+        }
+
+        input {
+            background: $bg-primary;
+            border: 1px solid $border-light;
+            color: $text-light;
+            padding: $spacing-xs $spacing-sm;
+            border-radius: $radius-md;
+            width: 80px;
+            text-align: center;
+            font-size: $font-size-lg;
+            font-weight: bold;
+            
+            &:focus {
+                border-color: $accent-blue;
+                outline: none;
+            }
+        }
+
+        .helper-text {
+             color: $accent-blue-light;
+             font-size: $font-size-sm;
+             margin: 0;
+             text-align: center;
+             
+             strong {
+                 color: $text-light;
+             }
+        }
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: $spacing-sm;
+        
+        button {
+            flex: 1;
+            padding: $spacing-sm;
+            border-radius: $radius-lg;
+            font-weight: $font-weight-semibold;
+            cursor: pointer;
+            border: none;
+            font-size: $font-size-base;
+            transition: all $transition-base;
+        }
+
+        .cancel-btn {
+            background: transparent;
+            border: 1px solid $border-light-hover;
+            color: $text-light;
+             &:hover { background: $overlay-light; }
+        }
+
+        .save-btn {
+            background: $accent-blue;
+            color: $text-light;
+             &:hover { background: $accent-blue-dark; }
+        }
+    }
+}
+
+// ─────────────────────────────────────────────
+// RESPONSIVE
+// ─────────────────────────────────────────────
+
+@include respond-to(md) {
+  .options-header {
+    padding: $spacing-lg;
+  }
+}

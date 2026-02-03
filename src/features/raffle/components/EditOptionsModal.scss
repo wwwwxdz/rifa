@@ -1,0 +1,252 @@
+@use "../../../styles/variables" as *;
+
+
+
+.edit-modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  overflow: hidden; // Prevent full page scroll
+  display: block;
+  animation: fadeIn 0.3s ease-out;
+
+  &.closing {
+    animation: fadeOut 0.3s ease-out forwards;
+  }
+}
+
+.edit-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%; // Fill full viewport height
+  width: 100%;
+  max-width: $max-width-mobile;
+  background: $bg-tertiary;
+  margin: 0 auto;
+  position: relative;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden; // Ensure inner scrolling only
+}
+
+// ... animations ...
+
+.edit-header {
+  // Fixed at top
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 48px 1fr 48px; // Precise columns for centering title
+  align-items: center;
+  padding: $spacing-md;
+  background: rgba($bg-secondary, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba($border-light, 0.1);
+  z-index: 10;
+  border-radius: 0;
+
+  h2 {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $text-light;
+    margin: 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .close-btn {
+    background: transparent;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    padding: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; // Align icon left
+    transition: color $transition-base;
+
+    &:hover {
+      color: $text-light;
+    }
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .header-spacer {
+    display: none; // Unused with grid layout
+  }
+}
+
+.edit-modal-body-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; // Stop body scrolling, force children to scroll
+  padding: 0;
+}
+
+.sticky-actions-container {
+  // Static flex item, stays at top of body
+  flex-shrink: 0;
+  background: $bg-tertiary;
+  padding: $spacing-md;
+  padding-bottom: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px -4px rgba(0,0,0,0.2);
+  z-index: 5;
+}
+
+// ... buttons ...
+
+.edit-options-list {
+  // THE SCROLLABLE AREA
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md $spacing-xl $spacing-md;
+  
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba($border-light, 0.2);
+    border-radius: $radius-full;
+  }
+}
+
+.edit-option-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  background: rgba(255, 255, 255, 0.03);
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-lg;
+  border: 1px solid transparent;
+  transition: all $transition-base;
+
+  &:focus-within {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba($accent-blue, 0.3);
+  }
+
+  input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: $text-light;
+    font-size: $font-size-base;
+    padding: $spacing-xs 0;
+    outline: none;
+
+    &::placeholder {
+      color: $text-muted;
+      opacity: 0.5;
+    }
+  }
+}
+
+.option-color-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+}
+
+.delete-option-btn {
+  background: transparent;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    color: $accent-coral;
+    background: rgba($accent-coral, 0.1);
+  }
+}
+
+.empty-options-msg {
+  text-align: center;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  padding: $spacing-lg;
+  font-style: italic;
+}
+
+.edit-modal-actions.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  background: $bg-secondary;
+  border-top: 1px solid rgba($border-light, 0.1);
+  display: flex;
+  gap: $spacing-md;
+  z-index: 10;
+
+  align-items: center;
+  padding: 0.5rem;
+  
+  // Eliminados margenes negativos que causaban scroll horizontal
+
+  button {
+    flex: 1;
+    padding: $spacing-sm;
+    border-radius: $radius-lg;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    border: none;
+    font-size: $font-size-base;
+    transition: all $transition-base;
+  }
+// ...
+
+  .cancel-btn {
+    background: transparent;
+    border: 1px solid rgba($text-muted, 0.3);
+    color: $text-light;
+    z-index: 100;
+
+    &:hover {
+      background: rgba($text-light, 0.05);
+      border-color: $text-light;
+    }
+  }
+
+  .save-btn {
+    background: $accent-blue;
+    color: $text-light;
+    box-shadow: 0 4px 15px rgba($accent-blue, 0.3);
+
+    &:hover {
+      background: $accent-blue-dark;
+      transform: translateY(-1px);
+    }
+  }
+}

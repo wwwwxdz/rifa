@@ -1,0 +1,339 @@
+// ============================================
+// DESIGN TOKENS - RIFA APP
+// ============================================
+
+// ─────────────────────────────────────────────
+// COLORS
+// ─────────────────────────────────────────────
+
+// Background Colors
+$bg-primary: #1e2a3a;
+$bg-secondary: #2c3e50;
+$bg-tertiary: #1a2433;
+$bg-dark: #151d27;
+
+// Accent Colors
+$accent-blue: #3498db;
+$accent-blue-light: #5dade2;
+$accent-blue-dark: #2980b9;
+$accent-coral: #e74c3c;
+$accent-coral-light: #ec7063;
+$accent-coral-dark: #c0392b;
+
+// Wheel Segment Colors
+$wheel-red: #EF5350;
+$wheel-yellow: #F7DC6F;
+$wheel-green: #81C784;
+$wheel-blue: #64B5F6;
+$wheel-purple: #BA68C8;
+$wheel-orange: #FFB74D;
+$wheel-teal: #4DB6AC;
+$wheel-pink: #F06292;
+
+// Text Colors
+$text-light: #ffffff;
+$text-light-secondary: rgba(255, 255, 255, 0.87);
+$text-light-tertiary: rgba(255, 255, 255, 0.6);
+$text-muted: #7f8c8d;
+$text-muted-light: #95a5a6;
+
+// Overlay Colors
+$overlay-dark: rgba(0, 0, 0, 0.7);
+$overlay-light: rgba(255, 255, 255, 0.05);
+
+// Border Colors
+$border-light: rgba(255, 255, 255, 0.1);
+$border-light-hover: rgba(255, 255, 255, 0.2);
+
+// Shadow Colors
+$shadow-dark: rgba(0, 0, 0, 0.3);
+$shadow-darker: rgba(0, 0, 0, 0.5);
+$shadow-accent: rgba(52, 152, 219, 0.4);
+
+// ─────────────────────────────────────────────
+// TYPOGRAPHY
+// ─────────────────────────────────────────────
+
+// Font Family
+$font-family-primary: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+// Font Sizes
+$font-size-xs: 0.75rem;    // 12px
+$font-size-sm: 0.85rem;    // 13.6px
+$font-size-base: 0.95rem;  // 15.2px
+$font-size-md: 1rem;       // 16px
+$font-size-lg: 1.15rem;    // 18.4px
+$font-size-xl: 1.25rem;    // 20px
+$font-size-2xl: 1.5rem;    // 24px
+$font-size-3xl: 2rem;      // 32px
+
+// Font Weights
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Line Heights
+$line-height-tight: 1.2;
+$line-height-base: 1.5;
+$line-height-relaxed: 1.75;
+
+// ─────────────────────────────────────────────
+// SPACING
+// ─────────────────────────────────────────────
+
+$spacing-xxs: 0.25rem;  // 4px
+$spacing-xs: 0.5rem;    // 8px
+$spacing-sm: 0.75rem;   // 12px
+$spacing-md: 1rem;      // 16px
+$spacing-lg: 1.25rem;   // 20px
+$spacing-xl: 1.5rem;    // 24px
+$spacing-2xl: 2rem;     // 32px
+$spacing-3xl: 3rem;     // 48px
+
+// ─────────────────────────────────────────────
+// BORDER RADIUS
+// ─────────────────────────────────────────────
+
+$radius-sm: 6px;
+$radius-md: 8px;
+$radius-lg: 10px;
+$radius-xl: 12px;
+$radius-2xl: 16px;
+$radius-full: 9999px;
+
+// ─────────────────────────────────────────────
+// SIZES
+// ─────────────────────────────────────────────
+
+// Button Sizes
+$btn-size-sm: 32px;
+$btn-size-md: 40px;
+$btn-size-lg: 44px;
+$btn-size-xl: 56px;
+
+// Icon Sizes
+$icon-size-sm: 16px;
+$icon-size-md: 20px;
+$icon-size-lg: 24px;
+$icon-size-xl: 28px;
+$icon-size-2xl: 32px;
+
+// Wheel Sizes
+$wheel-size-sm: 280px;
+$wheel-size-md: 300px;
+$wheel-size-lg: 400px;
+$wheel-center-btn-sm: 70px;
+$wheel-center-btn-md: 80px;
+$wheel-center-btn-lg: 100px;
+
+// Layout Sizes
+$max-width-mobile: 480px;
+$header-height: 60px;
+
+// Toggle Switch
+$toggle-width: 48px;
+$toggle-height: 26px;
+$toggle-thumb-size: 20px;
+
+// ─────────────────────────────────────────────
+// TRANSITIONS
+// ─────────────────────────────────────────────
+
+$transition-fast: 0.15s ease;
+$transition-base: 0.2s ease;
+$transition-normal: 0.25s ease;
+$transition-slow: 0.3s ease;
+$transition-spin: cubic-bezier(0.17, 0.67, 0.12, 0.99);
+
+// ─────────────────────────────────────────────
+// Z-INDEX LAYERS
+// ─────────────────────────────────────────────
+
+$z-index-dropdown: 10;
+$z-index-sticky: 20;
+$z-index-fixed: 30;
+$z-index-modal-backdrop: 40;
+$z-index-modal: 50;
+$z-index-popover: 60;
+$z-index-tooltip: 70;
+
+// ─────────────────────────────────────────────
+// BREAKPOINTS
+// ─────────────────────────────────────────────
+
+$breakpoint-sm: 480px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+
+// ─────────────────────────────────────────────
+// MIXINS
+// ─────────────────────────────────────────────
+
+// Flexbox Center
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Flexbox Between
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// Flexbox Column
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// Absolute Center
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+// Circle Button
+@mixin circle-button($size) {
+  width: $size;
+  height: $size;
+  border-radius: $radius-full;
+  border: none;
+  @include flex-center;
+  padding: 0;
+  cursor: pointer;
+  transition: all $transition-slow;
+}
+
+// Card Style
+@mixin card-style {
+  background: rgba($bg-secondary, 0.5);
+  border-radius: $radius-xl;
+  transition: background $transition-base;
+}
+
+// Text Ellipsis
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Responsive
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == sm {
+    @media (min-width: $breakpoint-sm) { @content; }
+  } @else if $breakpoint == md {
+    @media (min-width: $breakpoint-md) { @content; }
+  } @else if $breakpoint == lg {
+    @media (min-width: $breakpoint-lg) { @content; }
+  } @else if $breakpoint == xl {
+    @media (min-width: $breakpoint-xl) { @content; }
+  }
+}
+
+// Focus Visible
+@mixin focus-visible {
+  &:focus-visible {
+    outline: 2px solid $accent-blue;
+    outline-offset: 2px;
+  }
+}
+
+// Glass Effect
+@mixin glass-effect {
+  background: rgba($bg-secondary, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+// Gradient Background
+@mixin gradient-primary {
+  background: linear-gradient(180deg, $bg-primary 0%, $bg-dark 100%);
+}
+
+@mixin gradient-accent {
+  background: linear-gradient(135deg, $accent-blue, $accent-blue-dark);
+}
+
+@mixin gradient-danger {
+  background: linear-gradient(135deg, $accent-coral, $accent-coral-dark);
+}
+
+// Shadow
+@mixin shadow-sm {
+  box-shadow: 0 2px 6px $shadow-dark;
+}
+
+@mixin shadow-md {
+  box-shadow: 0 4px 12px $shadow-dark;
+}
+
+@mixin shadow-lg {
+  box-shadow: 0 8px 25px $shadow-dark;
+}
+
+@mixin shadow-xl {
+  box-shadow: 0 20px 60px $shadow-darker;
+}
+
+// ─────────────────────────────────────────────
+// ANIMATIONS
+// ─────────────────────────────────────────────
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}

@@ -1,0 +1,223 @@
+@use "../../../styles/variables" as *;
+@use "sass:color";
+
+// Full Screen Overlay Wrapper
+.confirm-modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 200; // Higher than everything
+  background: rgba(0, 0, 0, 0.5); // Slightly darker overlay
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-out;
+}
+
+// Full Page Layout
+.confirm-page {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  max-width: $max-width-mobile;
+  margin: 0 auto;
+  background: $bg-tertiary; // Use background color consistent with other pages
+  position: relative;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+  animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+// Header
+.confirm-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  background: rgba($bg-secondary, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba($border-light, 0.1);
+  min-height: 60px;
+  z-index: 10;
+
+  h3 {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $text-light;
+    margin: 0;
+  }
+
+  .back-btn {
+    background: transparent;
+    border: none;
+    color: $text-light;
+    cursor: pointer;
+    padding: $spacing-xs;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    &:hover {
+      color: $accent-blue;
+    }
+  }
+}
+
+// Content Body
+.confirm-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; // Center content vertically in the page
+  padding: $spacing-2xl $spacing-lg;
+  text-align: center;
+  gap: $spacing-lg;
+  overflow-y: auto;
+
+  .confirm-icon-wrapper {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $spacing-md;
+    flex-shrink: 0;
+
+    svg {
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  .confirm-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: $text-light;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .confirm-message {
+    font-size: $font-size-base;
+    color: $text-muted;
+    margin: 0;
+    line-height: 1.6;
+    max-width: 320px;
+  }
+}
+
+// Footer Actions
+.confirm-footer {
+  flex-shrink: 0;
+  padding: $spacing-lg;
+  background: $bg-secondary;
+  border-top: 1px solid rgba($border-light, 0.1);
+  display: flex;
+  flex-direction: column; // Stack buttons similar to other mobile confirm pages if needed, or row
+  gap: $spacing-md;
+
+  @include respond-to(sm) {
+    flex-direction: row;
+  }
+
+  .option-btn {
+    width: 100%;
+    padding: $spacing-md;
+    border-radius: $radius-lg;
+    font-size: $font-size-base;
+    font-weight: $font-weight-bold; // Make them bold like other CTAs
+    cursor: pointer;
+    border: none;
+    transition: all $transition-base;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    
+    &.cancel-btn {
+      background: transparent;
+      border: 1px solid rgba($border-light, 0.3);
+      color: $text-muted;
+
+      &:hover {
+        border-color: $text-light;
+        color: $text-light;
+        background: rgba($text-light, 0.05);
+      }
+    }
+
+    &.confirm-btn {
+      color: white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      }
+      
+      &:active {
+         transform: translateY(0);
+      }
+    }
+  }
+}
+
+// Variants
+
+
+.confirm-page--warning {
+  .confirm-icon-wrapper {
+    background: rgba(#fbbf24, 0.1);
+    color: #fbbf24;
+    border: 2px solid rgba(#fbbf24, 0.2);
+  }
+  
+  .confirm-btn {
+    background: #fbbf24;
+    color: #1a1a2e; // Dark text for yellow bg
+  }
+}
+
+.confirm-page--danger {
+  .confirm-icon-wrapper {
+    background: rgba($accent-coral, 0.1);
+    color: $accent-coral;
+    border: 2px solid rgba($accent-coral, 0.2);
+  }
+  
+  .confirm-btn {
+    background: $accent-coral;
+  }
+}
+
+.confirm-page--info {
+  .confirm-icon-wrapper {
+    background: rgba($accent-blue, 0.1);
+    color: $accent-blue;
+     border: 2px solid rgba($accent-blue, 0.2);
+  }
+  
+  .confirm-btn {
+    background: $accent-blue;
+  }
+}
+
+
+// Keyframes
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
