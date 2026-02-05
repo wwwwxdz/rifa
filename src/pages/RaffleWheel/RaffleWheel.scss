@@ -345,6 +345,17 @@
   }
 }
 
+.reset-btn {
+  background: transparent;
+  color: $accent-blue;
+  border: 1px solid rgba($accent-blue, 0.3);
+
+  &:hover {
+    background: rgba($accent-blue, 0.1);
+    color: $accent-blue;
+  }
+}
+
 .edit-btn {
   @include gradient-accent;
   color: $text-light;

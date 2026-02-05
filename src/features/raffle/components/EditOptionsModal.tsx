@@ -13,7 +13,6 @@ interface EditOptionsModalProps {
   onSave: () => void;
   onCancel: () => void;
   onDeleteAll: () => void;
-  onReset: () => void;
 }
 
 export const EditOptionsModal: React.FC<EditOptionsModalProps> = ({
@@ -27,7 +26,6 @@ export const EditOptionsModal: React.FC<EditOptionsModalProps> = ({
   onSave,
   onCancel,
   onDeleteAll,
-  onReset,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -85,9 +83,6 @@ export const EditOptionsModal: React.FC<EditOptionsModalProps> = ({
                 disabled={options.length === 0}
               >
                 Eliminar todos
-              </button>
-              <button className="reset-btn" onClick={onReset}>
-                Resetear
               </button>
             </div>
 

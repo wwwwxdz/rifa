@@ -1016,7 +1016,6 @@ export const RaffleWheel = () => {
           onCancel={handleCancelEdit}
           onDeleteOption={handleDeleteOption}
           onDeleteAll={handleDeleteAll}
-          onReset={handleReset}
           onAddOption={handleAddOption}
         />
 
@@ -1046,6 +1045,7 @@ export const RaffleWheel = () => {
         <OptionsModal
           isOpen={isOptionsOpen}
           onClose={() => setIsOptionsOpen(false)}
+          onResetOptions={handleReset}
         />
       </div>
     </div>
