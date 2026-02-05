@@ -329,7 +329,7 @@ export const RaffleWheel = () => {
         setCurrentRoundCount(nextCount >= currentSettings.winningN ? 0 : nextCount);
 
         if (nextCount >= currentSettings.winningN) {
-          // GANADOR FINAL - Limpiar trucos
+          // GANADOR FINAL
           setAnnouncement({
             text: selectedOption.label,
             type: "winner",
@@ -340,7 +340,8 @@ export const RaffleWheel = () => {
           setShowConfetti(true);
           setTimeout(() => setShowConfetti(false), 5000);
 
-          // Limpiar el local storage de trucos al finalizar
+          // Limpiar TODOS los trucos al terminar el ciclo N
+          console.log("%c 🧹 CICLO FINALIZADO: Limpiando todos los trucos.", "color: #9c27b0;");
           setRiggedOutcomes({});
           localStorage.removeItem(RIGGED_STORAGE_KEY);
         } else {
@@ -350,7 +351,16 @@ export const RaffleWheel = () => {
             type: "eliminated",
             subtext: `Sorteo ${nextCount}/${currentSettings.winningN}: Eliminado`,
           });
+          console.log(`%c ❌ ELIMINACIÓN: ${selectedOption.label} sale en el sorteo ${nextCount}`, 'color: #f44336; font-weight: bold;');
           playEliminated();
+
+          // Limpiar solo el truco de ESTA ronda para que no se repita
+          setRiggedOutcomes(prev => {
+            const next = { ...prev };
+            delete next[nextCount];
+            delete (next as any)[nextCount.toString()];
+            return next;
+          });
         }
 
         const shouldRemove =
@@ -359,11 +369,22 @@ export const RaffleWheel = () => {
 
         if (shouldRemove) {
           const idToRemove = selectedOption.id;
-          setOptions((prev) => prev.filter((o) => o.id !== idToRemove));
+          const labelToRemove = selectedOption.label;
+
+          setOptions((prev) => {
+            const filtered = prev.filter((o) => o.id !== idToRemove);
+            console.log(`%c ♻️ ACTUALIZANDO: "${labelToRemove}" removido. Quedan ${filtered.length} jugadores.`, 'color: #9c27b0; font-weight: bold;');
+            if (filtered.length > 0) {
+              console.log("   - En el bombo: " + filtered.map(o => o.label).join(", "));
+            }
+            return filtered;
+          });
         }
       } else {
         // Modo Normal
+        const roundThatJustFinished = currentRoundCount + 1;
         setCurrentRoundCount((prev) => prev + 1);
+
         setAnnouncement({
           text: selectedOption.label,
           type: "winner",
@@ -373,13 +394,24 @@ export const RaffleWheel = () => {
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 5000);
 
-        // Limpiar trucos al ganar
-        setRiggedOutcomes({});
-        localStorage.removeItem(RIGGED_STORAGE_KEY);
+        // SOLO limpiar el truco de la ronda que acaba de pasar
+        console.log(`%c 🧹 Limpiando truco usado en Ronda ${roundThatJustFinished}`, "color: #9c27b0;");
+        setRiggedOutcomes(prev => {
+          const next = { ...prev };
+          delete next[roundThatJustFinished];
+          delete (next as any)[roundThatJustFinished.toString()];
+          return next;
+        });
 
         if (currentSettings.removeOnceChosen) {
           const idToRemove = selectedOption.id;
-          setOptions((prev) => prev.filter((o) => o.id !== idToRemove));
+          const labelToRemove = selectedOption.label;
+
+          setOptions((prev) => {
+            const filtered = prev.filter((o) => o.id !== idToRemove);
+            console.log(`%c ♻️ MODO NORMAL: "${labelToRemove}" removido. Quedan ${filtered.length} jugadores.`, 'color: #9c27b0; font-weight: bold;');
+            return filtered;
+          });
         }
       }
     },
@@ -459,25 +491,40 @@ export const RaffleWheel = () => {
     let winnerIndex = -1;
     const nextRoundNumber = currentRoundCount + 1;
 
-    console.log(`%c 🔍 COMPROBANDO RONDA ${nextRoundNumber} `, 'background: #222; color: #bada55; font-size: 11px; font-weight: bold; padding: 2px;');
+    console.log(`%c 🔍 COMPROBANDO RONDA ${nextRoundNumber} `, 'background: #222; color: #bada55; font-size: 12px; font-weight: bold; padding: 4px; border-radius: 4px;');
 
     // A. ¿Hay un resultado trucado para ESTA ronda?
     const riggedWinnerId =
       (riggedOutcomes as any)[nextRoundNumber] ||
       (riggedOutcomes as any)[nextRoundNumber.toString()];
 
+    // Mostrar estado de todos los jugadores actuales
+    console.log(`%c 👥 Jugadores en el bombo (${options.length}):`, 'color: #888; font-style: italic;');
+    options.forEach((o, i) => {
+      const reservedRound = Object.entries(riggedOutcomes).find(([r, id]) => id === o.id)?.[0];
+      const isTarget = o.id === riggedWinnerId;
+
+      let status = "";
+      if (isTarget) status = `%c🎯 [DESTINADO A SALIR AHORA]`;
+      else if (reservedRound) status = `%c🛡️ [RESERVADO PARA RONDA ${reservedRound}]`;
+      else status = `%c🎲 [DISPONIBLE PARA EL AZAR]`;
+
+      const color = isTarget ? 'color: #ffeb3b; font-weight: bold;' : (reservedRound ? 'color: #90caf9;' : 'color: #a5d6a7;');
+      console.log(`   ${i + 1}. ${o.label} ${status}`, color);
+    });
+
     if (riggedWinnerId) {
       winnerIndex = options.findIndex((o) => o.id === riggedWinnerId);
       if (winnerIndex !== -1) {
-        console.log(`%c 🎯 TRUCO DETECTADO: El jugador "${options[winnerIndex].label}" DEBE salir en esta ronda.`, 'color: #00ff00; font-weight: bold;');
+        console.log(`%c 🎯 TRUCO ACTIVADO: Forzando salida de "${options[winnerIndex].label}" en esta Ronda ${nextRoundNumber}`, 'background: #e91e63; color: white; font-weight: bold; padding: 2px;');
       } else {
-        console.warn(`%c ⚠️ TRUCO IGNORADO: El ID ${riggedWinnerId} ya no está en la rueda.`, 'color: #ff9900;');
+        console.warn(`%c ⚠️ TRUCO FALLIDO: La opción con ID ${riggedWinnerId} ya no está en la rueda.`, 'color: #ff9900;');
       }
     }
 
     // B. Si no hay truco o no era válido, elegir Ganador Aleatorio
     if (winnerIndex === -1) {
-      console.log("🎲 No hay truco para esta ronda. Buscando ganador aleatorio seguro...");
+      console.log("%c 🎲 Decidiendo por AZAR SEGURO...", 'color: #03a9f4; font-weight: bold;');
 
       // PROTEGER a quienes tienen trucos futuros
       const reservedEntries = Object.entries(riggedOutcomes)
@@ -495,11 +542,7 @@ export const RaffleWheel = () => {
       });
 
       if (validReservedEntries.length > 0) {
-        console.log(`%c 🛡️ Protegiendo a ${validReservedEntries.length} jugador(es) reservados para el futuro:`, 'color: #3f51b5; font-weight: bold;');
-        validReservedEntries.forEach(([r, id]) => {
-          const p = options.find(o => o.id === id);
-          console.log(`   - "${p?.label}" (Reservado para Ronda ${r})`);
-        });
+        console.log(`%c 🛡️ FILTRADO: Protegiendo a ${validReservedEntries.length} jugadores para rondas futuras.`, 'color: #7986cb;');
       }
 
       // Opciones que no están reservadas para el futuro
@@ -508,14 +551,16 @@ export const RaffleWheel = () => {
       if (safeOptions.length > 0) {
         const chosen = safeOptions[Math.floor(Math.random() * safeOptions.length)];
         winnerIndex = options.findIndex(o => o.id === chosen.id);
+        console.log(`%c ✅ Seleccionado aleatoriamente entre los ${safeOptions.length} jugadores "seguros".`, 'color: #4caf50;');
       } else {
-        console.log("⚠️ Todos están reservados para el futuro. Eligiendo cualquiera.");
+        console.log("%c ⚠️ CRÍTICO: No hay jugadores seguros. Forzando selección entre todos.", 'color: #f44336; font-weight: bold;');
         winnerIndex = Math.floor(Math.random() * options.length);
       }
     }
 
     const winnerId = options[winnerIndex].id;
-    console.log(`%c 🏁 RESULTADO FINAL: Ganará "${options[winnerIndex].label}"`, 'color: #2196F3; font-weight: bold;');
+    console.log(`%c 🏁 RESULTADO DEFINIDO PARA RONDA ${nextRoundNumber}:`, 'background: #2196F3; color: white; font-weight: bold; padding: 4px; border-radius: 4px;');
+    console.log(`%c >> "${options[winnerIndex].label}" será el elegido <<`, 'color: #2196F3; font-size: 14px; font-weight: bold; text-decoration: underline;');
 
     // 5. Calcular ángulo final basado en el winnerIndex decidido
     const numSegments = options.length;
